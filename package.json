@@ -1,0 +1,20 @@
+{
+  "name": "pi-deepseek-vision",
+  "version": "0.0.1",
+  "description": "Pi extension giving vision to DeepSeek",
+  "homepage": "https://github.com/psychobarge/pi-deepseek-vision",
+  "bugs": "https://github.com/psychobarge/pi-deepseek-vision/issues",
+  "license": "MIT",
+  "author": "psychobarge",
+  "keywords": [
+    "pi-package"
+  ],
+  "pi": {
+    "extensions": [
+      "./extensions"
+    ]
+  },
+  "peerDependencies": {
+    "@earendil-works/pi-coding-agent": "*"
+  }
+}
