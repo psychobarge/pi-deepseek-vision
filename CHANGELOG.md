@@ -10,6 +10,7 @@
   of failing every vision call.
 - Fix: multiple pasted images are now described one after another, so each call
   gets its own timeout and single-request local servers no longer time out.
+- Refactor: startup check and `/vision` share a single `listModels()` helper.
 
 ## 0.0.1 - 2025-08-04
 

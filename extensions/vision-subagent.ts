@@ -76,9 +76,16 @@ async function describe(data: string, mimeType: string, question: string, ctx: E
   return text;
 }
 
+async function listModels(signal: AbortSignal): Promise<string[]> {
+  const { baseUrl, headers } = config();
+  const res = await fetch(`${baseUrl}/models`, { headers, signal });
+  if (!res.ok) throw new Error(`HTTP ${res.status}`);
+  return ((await res.json()).data ?? []).map((m: any) => m.id);
+}
+
 async function checkVisionOnStartup(ctx: ExtensionContext): Promise<void> {
   if (!ctx.hasUI) return; // No UI (print/json): nothing to notify
-  const { baseUrl, model, headers } = config();
+  const { baseUrl, model } = config();
   if (!model) {
     ctx.ui.notify(
       `Vision not configured: VISION_MODEL is missing (server: ${baseUrl}) - export VISION_MODEL=qwen2.5vl:7b`,
@@ -87,9 +94,7 @@ async function checkVisionOnStartup(ctx: ExtensionContext): Promise<void> {
     return;
   }
   try {
-    const res = await fetch(`${baseUrl}/models`, { headers, signal: AbortSignal.timeout(5000) });
-    if (!res.ok) throw new Error(`HTTP ${res.status}`);
-    const ids = ((await res.json()).data ?? []).map((m: any) => m.id);
+    const ids = await listModels(AbortSignal.timeout(5000));
     const norm = (id: string) => id.replace(/^\.\//, "").toLowerCase();
     if (ids.length === 0 || !ids.some((id: string) => norm(id) === norm(model))) {
       ctx.ui.notify(
@@ -112,11 +117,9 @@ export default function (pi: ExtensionAPI) {
   pi.registerCommand("vision", {
     description: "Test the vision server (VISION_BASE_URL) and list its models",
     handler: async (_args, ctx) => {
-      const { baseUrl, headers, timeoutMs } = config();
+      const { baseUrl, timeoutMs } = config();
       try {
-        const res = await fetch(`${baseUrl}/models`, { headers, signal: callSignal(ctx, timeoutMs) });
-        if (!res.ok) throw new Error(`HTTP ${res.status}`);
-        const ids = ((await res.json()).data ?? []).map((m: any) => m.id);
+        const ids = await listModels(callSignal(ctx, timeoutMs));
         ctx.ui.notify(`Vision ${baseUrl}: ${ids.length} model(s) - ${ids.slice(0, 8).join(", ") || "(empty)"}`, "info");
       } catch (e: any) {
         ctx.ui.notify(`Vision ${baseUrl} unreachable: ${e.message}`, "error");
