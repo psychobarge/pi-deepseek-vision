@@ -4,6 +4,8 @@
 
 - Fix: startup check and `/vision` now send `VISION_API_KEY` to `/models`, so
   servers requiring a key (OpenAI, OpenRouter) no longer report "unreachable: HTTP 401".
+- Fix: an invalid or empty `VISION_TIMEOUT_MS` now falls back to 120000 ms instead
+  of failing every vision call.
 
 ## 0.0.1 - 2025-08-04
 
