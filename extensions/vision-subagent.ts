@@ -23,7 +23,9 @@ function config() {
   const model = process.env.VISION_MODEL ?? "";
   const apiKey = process.env.VISION_API_KEY ?? "";
   const timeoutMs = Number(process.env.VISION_TIMEOUT_MS ?? 120_000);
-  return { baseUrl, model, apiKey, timeoutMs };
+  const headers: Record<string, string> = { "Content-Type": "application/json" };
+  if (apiKey) headers.Authorization = `Bearer ${apiKey}`;
+  return { baseUrl, model, headers, timeoutMs };
 }
 
 function readPrompt(p: string): string | undefined {
@@ -46,10 +48,8 @@ function callSignal(ctx: ExtensionContext, timeoutMs: number): AbortSignal {
 }
 
 async function describe(data: string, mimeType: string, question: string, ctx: ExtensionContext): Promise<string> {
-  const { baseUrl, model, apiKey, timeoutMs } = config();
+  const { baseUrl, model, headers, timeoutMs } = config();
   if (!model) throw new Error(`VISION_MODEL is not set (server: ${baseUrl}) - e.g. export VISION_MODEL=qwen2.5vl:7b`);
-  const headers: Record<string, string> = { "Content-Type": "application/json" };
-  if (apiKey) headers.Authorization = `Bearer ${apiKey}`;
   const res = await fetch(`${baseUrl}/chat/completions`, {
     method: "POST",
     signal: callSignal(ctx, timeoutMs),
@@ -74,7 +74,7 @@ async function describe(data: string, mimeType: string, question: string, ctx: E
 
 async function checkVisionOnStartup(ctx: ExtensionContext): Promise<void> {
   if (!ctx.hasUI) return; // No UI (print/json): nothing to notify
-  const { baseUrl, model } = config();
+  const { baseUrl, model, headers } = config();
   if (!model) {
     ctx.ui.notify(
       `Vision not configured: VISION_MODEL is missing (server: ${baseUrl}) - export VISION_MODEL=qwen2.5vl:7b`,
@@ -83,7 +83,7 @@ async function checkVisionOnStartup(ctx: ExtensionContext): Promise<void> {
     return;
   }
   try {
-    const res = await fetch(`${baseUrl}/models`, { signal: AbortSignal.timeout(5000) });
+    const res = await fetch(`${baseUrl}/models`, { headers, signal: AbortSignal.timeout(5000) });
     if (!res.ok) throw new Error(`HTTP ${res.status}`);
     const ids = ((await res.json()).data ?? []).map((m: any) => m.id);
     const norm = (id: string) => id.replace(/^\.\//, "").toLowerCase();
@@ -108,9 +108,9 @@ export default function (pi: ExtensionAPI) {
   pi.registerCommand("vision", {
     description: "Test the vision server (VISION_BASE_URL) and list its models",
     handler: async (_args, ctx) => {
-      const { baseUrl, timeoutMs } = config();
+      const { baseUrl, headers, timeoutMs } = config();
       try {
-        const res = await fetch(`${baseUrl}/models`, { signal: callSignal(ctx, timeoutMs) });
+        const res = await fetch(`${baseUrl}/models`, { headers, signal: callSignal(ctx, timeoutMs) });
         if (!res.ok) throw new Error(`HTTP ${res.status}`);
         const ids = ((await res.json()).data ?? []).map((m: any) => m.id);
         ctx.ui.notify(`Vision ${baseUrl}: ${ids.length} model(s) - ${ids.slice(0, 8).join(", ") || "(empty)"}`, "info");

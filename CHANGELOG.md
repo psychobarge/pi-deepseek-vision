@@ -1,5 +1,10 @@
 # Changelog
 
+## Unreleased
+
+- Fix: startup check and `/vision` now send `VISION_API_KEY` to `/models`, so
+  servers requiring a key (OpenAI, OpenRouter) no longer report "unreachable: HTTP 401".
+
 ## 0.0.1 - 2025-08-04
 
 Initial release.
