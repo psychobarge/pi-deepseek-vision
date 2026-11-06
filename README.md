@@ -54,6 +54,20 @@ export VISION_API_KEY=$OPENROUTER_API_KEY
 
 Export the variables in the shell before launching pi. Switching servers = changing `VISION_BASE_URL`/`VISION_MODEL`, nothing else.
 
+### pi in Docker
+
+`export` from inside pi then `/reload` does not work: pi's own environment is unchanged. Pass the variables when the container starts, and reach a server running on the host with `host.docker.internal` (`localhost` is the container itself). 
+With [pi-sandbox](https://github.com/psychobarge/pi-sandbox), add them to `DOCKER_ARGS` in `pi.conf`:
+
+```sh
+DOCKER_ARGS=(-e PI_SKIP_VERSION_CHECK=1
+  -e VISION_BASE_URL=http://host.docker.internal:8080/v1
+  -e VISION_MODEL=./Gemma-3n-4b-Vision-Finetuned.i1-Q6_K.gguf
+  -e VISION_FORCE=1)
+```
+
+`VISION_FORCE=1` is only needed if the active DeepSeek model is declared image-capable. With plain `docker run`, use `-e VISION_BASE_URL=...` etc.; on Linux without Docker Desktop, also add `--add-host=host.docker.internal:host-gateway`.
+
 ## Usage
 
 - **Paste an image** (Ctrl+V / drag & drop) → described by the vision model, the description is injected into the prompt as `[Vision of attached image: …]`, DeepSeek reasons over it

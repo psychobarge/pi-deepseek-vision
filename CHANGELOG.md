@@ -14,6 +14,7 @@
 - Fix: Ollama models listed as `name:latest` now match `VISION_MODEL=name`
   (no more false "model not found" warning).
 - Tests: `npm test` covers model-name matching and config parsing.
+- Docs: README section on running pi in Docker (env vars via `DOCKER_ARGS`, `host.docker.internal`).
 - Docs: removed outdated install path from the extension header comment.
 - Docs: fixed the 0.0.1 release date in this changelog (2026, not 2025).
 
