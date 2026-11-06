@@ -29,6 +29,9 @@ function config() {
   return { baseUrl, model, headers, timeoutMs };
 }
 
+// Native vision is used unless VISION_FORCE=1 routes images through the vision model anyway
+const nativeVision = (ctx: any) => process.env.VISION_FORCE !== "1" && !!ctx.model?.input.includes("image");
+
 function readPrompt(p: string): string | undefined {
   if (existsSync(p)) {
     const { body } = parseFrontmatter(readFileSync(p, "utf8"));
@@ -123,7 +126,7 @@ export default function (pi: ExtensionAPI) {
 
   // Pasted image (Ctrl+V) → described, description injected, image dropped
   pi.on("input", async (event, ctx) => {
-    if (!event.images?.length || ctx.model?.input.includes("image")) return { action: "continue" };
+    if (!event.images?.length || nativeVision(ctx)) return { action: "continue" };
     const images = event.images;
     try {
       // Sequential: local servers handle one request at a time, so each call gets its own timeout
@@ -146,7 +149,7 @@ export default function (pi: ExtensionAPI) {
   // DeepSeek runs read on an image → replace content with the description
   pi.on("tool_result", async (event, ctx) => {
     const img = event.content.find((c): c is { type: "image"; data: string; mimeType: string } => c.type === "image");
-    if (event.toolName !== "read" || !img || ctx.model?.input.includes("image")) return;
+    if (event.toolName !== "read" || !img || nativeVision(ctx)) return;
     try {
       const text = await describe(img.data, img.mimeType,
         "Describe this image very precisely (text, UI, code, errors).", ctx);

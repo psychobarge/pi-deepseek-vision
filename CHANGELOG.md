@@ -2,6 +2,8 @@
 
 ## Unreleased
 
+- Add: `VISION_FORCE=1` routes images through the vision model even when the active
+  model is declared image-capable (e.g. `deepseek-flash`), to keep images local.
 - Fix: startup check and `/vision` now send `VISION_API_KEY` to `/models`, so
   servers requiring a key (OpenAI, OpenRouter) no longer report "unreachable: HTTP 401".
 - Fix: an invalid or empty `VISION_TIMEOUT_MS` now falls back to 120000 ms instead
