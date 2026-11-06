@@ -126,10 +126,12 @@ export default function (pi: ExtensionAPI) {
     if (!event.images?.length || ctx.model?.input.includes("image")) return { action: "continue" };
     const images = event.images;
     try {
-      const parts = await Promise.all(images.map((img, i) =>
-        describe(img.data, img.mimeType,
-          `Image ${i + 1}/${images.length}: describe it very precisely (text, UI, code, visible errors).`, ctx)
-      ));
+      // Sequential: local servers handle one request at a time, so each call gets its own timeout
+      const parts: string[] = [];
+      for (const [i, img] of images.entries()) {
+        parts.push(await describe(img.data, img.mimeType,
+          `Image ${i + 1}/${images.length}: describe it very precisely (text, UI, code, visible errors).`, ctx));
+      }
       return {
         action: "transform",
         text: `[Vision of attached image:\n${parts.join("\n\n")}]\n\n${event.text}`,
