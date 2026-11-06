@@ -15,8 +15,9 @@
   (no more false "model not found" warning).
 - Tests: `npm test` covers model-name matching and config parsing.
 - Docs: removed outdated install path from the extension header comment.
+- Docs: fixed the 0.0.1 release date in this changelog (2026, not 2025).
 
-## 0.0.1 - 2025-08-04
+## 0.0.1 - 2026-08-04
 
 Initial release.
 
