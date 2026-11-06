@@ -14,6 +14,7 @@
 - Fix: Ollama models listed as `name:latest` now match `VISION_MODEL=name`
   (no more false "model not found" warning).
 - Tests: `npm test` covers model-name matching and config parsing.
+- Docs: removed outdated install path from the extension header comment.
 
 ## 0.0.1 - 2025-08-04
 

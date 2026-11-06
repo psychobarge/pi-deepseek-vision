@@ -1,4 +1,3 @@
-// ~/.pi/agent/extensions/vision-subagent.ts
 // Server-agnostic vision: any OpenAI-compatible endpoint (/v1/chat/completions).
 // Config: VISION_BASE_URL, VISION_MODEL, VISION_API_KEY (opt), VISION_TIMEOUT_MS (opt)
 //   ollama http://localhost:11434/v1 | llama.cpp http://localhost:8080/v1
