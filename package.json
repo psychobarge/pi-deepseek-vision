@@ -6,6 +6,9 @@
   "bugs": "https://github.com/psychobarge/pi-deepseek-vision/issues",
   "license": "MIT",
   "author": "psychobarge",
+  "scripts": {
+    "test": "node --test test/*.test.ts"
+  },
   "keywords": [
     "pi-package"
   ],

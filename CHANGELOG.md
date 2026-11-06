@@ -11,6 +11,9 @@
 - Fix: multiple pasted images are now described one after another, so each call
   gets its own timeout and single-request local servers no longer time out.
 - Refactor: startup check and `/vision` share a single `listModels()` helper.
+- Fix: Ollama models listed as `name:latest` now match `VISION_MODEL=name`
+  (no more false "model not found" warning).
+- Tests: `npm test` covers model-name matching and config parsing.
 
 ## 0.0.1 - 2025-08-04
 

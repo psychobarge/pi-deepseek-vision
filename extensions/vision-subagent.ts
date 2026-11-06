@@ -10,6 +10,7 @@ import { existsSync, readFileSync } from "node:fs";
 import { fileURLToPath } from "node:url";
 import { homedir } from "node:os";
 import { dirname, join } from "node:path";
+import { config, sameModel } from "../lib/config.ts";
 
 const VISION_AGENT = join(homedir(), ".pi", "agent", "agents", "vision.md");
 // Prompt shipped with the package (when installed via pi install): ../agents/vision.md
@@ -17,17 +18,6 @@ const PACKAGE_AGENT = join(dirname(fileURLToPath(import.meta.url)), "..", "agent
 const DEFAULT_PROMPT =
   "You are a vision specialist. Describe images exhaustively: all visible text verbatim, " +
   "UI layout, colors, code, error messages, icons. Be precise and structured.";
-
-function config() {
-  const baseUrl = (process.env.VISION_BASE_URL ?? "http://localhost:11434/v1").replace(/\/+$/, "");
-  const model = process.env.VISION_MODEL ?? "";
-  const apiKey = process.env.VISION_API_KEY ?? "";
-  const t = Number(process.env.VISION_TIMEOUT_MS);
-  const timeoutMs = Number.isFinite(t) && t > 0 ? t : 120_000; // NaN/0 would break AbortSignal.timeout
-  const headers: Record<string, string> = { "Content-Type": "application/json" };
-  if (apiKey) headers.Authorization = `Bearer ${apiKey}`;
-  return { baseUrl, model, headers, timeoutMs };
-}
 
 // Native vision is used unless VISION_FORCE=1 routes images through the vision model anyway
 const nativeVision = (ctx: any) => process.env.VISION_FORCE !== "1" && !!ctx.model?.input.includes("image");
@@ -95,8 +85,7 @@ async function checkVisionOnStartup(ctx: ExtensionContext): Promise<void> {
   }
   try {
     const ids = await listModels(AbortSignal.timeout(5000));
-    const norm = (id: string) => id.replace(/^\.\//, "").toLowerCase();
-    if (ids.length === 0 || !ids.some((id: string) => norm(id) === norm(model))) {
+    if (!ids.some((id) => sameModel(id, model))) {
       ctx.ui.notify(
         `Vision: model "${model}" not found on ${baseUrl} - available: ${ids.slice(0, 5).join(", ") || "(none)"}`,
         "warn",
