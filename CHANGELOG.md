@@ -1,6 +1,6 @@
 # Changelog
 
-## Unreleased
+## 0.1.0 - 2026-11-06
 
 - Add: `VISION_FORCE=1` routes images through the vision model even when the active
   model is declared image-capable (e.g. `deepseek-flash`), to keep images local.

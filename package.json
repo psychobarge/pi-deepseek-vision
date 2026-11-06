@@ -1,6 +1,6 @@
 {
   "name": "pi-deepseek-vision",
-  "version": "0.0.1",
+  "version": "0.1.0",
   "description": "Pi extension giving vision to DeepSeek",
   "homepage": "https://github.com/psychobarge/pi-deepseek-vision",
   "bugs": "https://github.com/psychobarge/pi-deepseek-vision/issues",
